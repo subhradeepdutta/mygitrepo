@@ -1,8 +1,8 @@
 /****************************************************************
 *Name: Subhradeep Dutta
 *Date: 12/30/2016
-*This program adds an element to the beginning and nth position
-*of a linked list and then displays the elements in the list
+*This program implements a linked list by adding elements
+*and deleting elements from the linked list
 *****************************************************************/
 
 
@@ -30,7 +30,10 @@ void PrintElements(struct node *start)
 {
 
     if(start==NULL)//If the list is empty
+    {
         printf("List is empty");
+        return;
+    }
     else
     {
         printf("\n The list is ");
@@ -88,6 +91,7 @@ struct node* InsertElementAtN(struct node *start,int x, int n)//Here the startin
     {
         new_node->next=start;
         start=new_node;
+        NoOfElements++;
         return start;
     }
     struct node *ptr;
@@ -95,7 +99,7 @@ struct node* InsertElementAtN(struct node *start,int x, int n)//Here the startin
     for(i=0;i<n-2;i++)//n-2 to iterate to the (n-1)th location
     {
         if (ptr->next == NULL)
-            return NULL;
+            return start;
         ptr=ptr->next;
     }
     new_node->next=ptr->next;//Copy the location of the next element from ptr
@@ -104,13 +108,52 @@ struct node* InsertElementAtN(struct node *start,int x, int n)//Here the startin
     return start;
 }
 
+
+/*************************************************************************************
+Description   : This function is used to delete elements in the nth position of the
+                linked list
+Input         : Position to be deleted, pointer to beginning of linked
+                list
+Output        : Pointer to the beginning of the linked list
+*************************************************************************************/
+struct node* DeleteElementAtN(struct node *start, int n)
+{
+    int i;
+    struct node* temp=NULL;
+    struct node* ptr=NULL;
+    ptr=start;
+    if(n==1)//Special case for the starting node
+    {
+        start=ptr->next;//The start location pointer is now pointing to 2nd node
+        free(ptr);
+        NoOfElements--;//Reduce the number of elements by 1
+        return start;
+    }
+    for(i=0;i<n-2;i++)//n-2 to iterate to the (n-1)th location
+    {
+        if (ptr->next == NULL)
+            return start;
+        ptr=ptr->next;
+    }
+    temp=ptr->next;//Nth node which is supposed to be deleted
+    ptr->next=temp->next;//Reassign the link part of Nth node to the (N-1)th node to point to the (N+1)th node
+    free(temp);
+    NoOfElements--;//Update the number of elements
+    return start;
+
+};
+
+
 int main()
 {
 
+    char choice;
+    int flag=1;
     int x=0, n=0, i=0;
     struct node *HEAD;//Pointer that points to beginning of the list
     struct node *ptr;//Pointer to iterate through the list
     HEAD=NULL; //Assigning HEAD to null when there are no elements in the list
+
     printf("Enter numbers to be inserted into the list\n Press q to quit\n");
     while(scanf("%d",&x)==1)//Check if scanf was succesful
     {
@@ -118,20 +161,77 @@ int main()
         PrintElements(HEAD);
         printf("\n\rEnter numbers to be inserted into the list\n Press q to quit\n");
     }
-        printf("Enter the number and position to be inserted");
+
+    while(flag==1)//As long as flag is 1 loop runs infintely
+    {
+        printf("\nMake a selection");
+        printf("\nPress 1 to insert elements");
+        printf("\nPress 2 to delete elements");
+        printf("\nPress 3 to print the current list");
+        printf("\nPress 9 to quit\n");
         getchar();
-        if(scanf(" %d",&i)==1&&scanf(" %d",&n)==1)//Check if scanf was successful
+        scanf(" %c",&choice);
+        switch(choice)
         {
-            if(n>NoOfElements)//Condition to check if the nth location is greater than the list size
+            case '1':
+            printf("Enter the number and position to be inserted\n");
+
+            if(scanf(" %d",&i)==1&&scanf(" %d",&n)==1)//Check if scanf was successful
             {
-                printf("\nLocation exceeds list size");
-                printf("\nSetting position to last location");
-                n=NoOfElements;
+                if(n>NoOfElements && NoOfElements!=0)//Condition to check if the nth location is greater than the list size
+                {
+                    printf("\nLocation exceeds list size");
+                    printf("\nSetting position to last location");
+                    n=NoOfElements;
+                }
+                else if(NoOfElements==0)
+                {
+                    printf("\nList is empty");
+                    flag=0;
+                    break;
+                }
+                printf("\n The value %d will be inserted at %d position",i, n);
+                HEAD=InsertElementAtN(HEAD, i, n);
+                PrintElements(HEAD);
             }
-            printf("\n The value %d will be inserted at %d position",i, n);
-            HEAD=InsertElementAtN(HEAD, i, n);
+            break;
+
+            case '2':
+            printf("Enter the position to be deleted\n");
+            if(scanf("%d",&n)==1)
+            {
+                if(n>NoOfElements && NoOfElements!=0)//Condition to check if the nth location is greater than the list size
+                {
+                    printf("\nLocation exceeds list size");
+                    printf("\nSetting position to last location");
+                    n=NoOfElements;
+                }
+                else if(NoOfElements==0)
+                {
+                    printf("\nList is empty");
+                    flag=0;
+                    break;
+                }
+                HEAD=DeleteElementAtN(HEAD, n);
+                printf("\n The value at %d position is now deleted",n);
+                PrintElements(HEAD);
+            }
+            break;
+
+            case '3':
             PrintElements(HEAD);
+            break;
+
+            case '9':
+            flag=0;
+            break;
+
+            default:
+            printf("Incorrect choice");
+            break;
         }
+    }
+
      /**Freeing memory**/
 
     while(HEAD!=NULL)
