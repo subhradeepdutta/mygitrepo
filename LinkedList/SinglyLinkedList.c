@@ -31,7 +31,7 @@ void PrintElements(struct node *start)
 
     if(start==NULL)//If the list is empty
     {
-        printf("List is empty");
+        printf("\nList is empty");
         return;
     }
     else
@@ -141,7 +141,75 @@ struct node* DeleteElementAtN(struct node *start, int n)
     NoOfElements--;//Update the number of elements
     return start;
 
-};
+}
+
+
+/*************************************************************************************
+Description   : This function is used to reverse the elements of the linked list
+                by iterative technique
+Input         : Pointer to the beginning of the linked list
+Output        : Pointer to the beginning of the linked list
+*************************************************************************************/
+
+struct node* IterativeReverseList(struct node *start)
+{
+    struct node * current, *prev, *post;
+    current=start;
+    prev=NULL;
+    while(current!=NULL)
+    {
+        post=current->next;//Store the location of next node
+        current->next=prev;//Repoint the current node's next to previous node
+        prev=current;//Shift the previous pointer to point to the current node
+        current=post;//Shift the current pointer to point to the next node
+    }
+    start=prev;
+    return start;
+}
+
+
+/*************************************************************************************
+Description   : This function is used to print the elements of the linked list in
+                reverse order using recursion
+Input         : Pointer to the beginning of the linked list
+Output        : Pointer to the beginning of the linked list
+*************************************************************************************/
+
+void PrintReverse(struct node *start)
+{
+    if(start==NULL)
+    {
+        printf("\n");
+        return;
+    }
+    PrintReverse(start->next);
+    printf("%d ",start->data);
+
+}
+
+
+/*************************************************************************************
+Description   : This function is used to reverse the elements of the linked list
+                by recursive technique
+Input         : Pointer to the beginning of the linked list
+Output        : Pointer to the beginning of the linked list
+*************************************************************************************/
+
+struct node* RecursiveReverseList(struct node *start)
+{
+    if(start->next==NULL)//Limiting condition when the last node is reached
+    {
+        return start;//Return the address of the last node
+    }
+    else
+    {
+        struct node *newstart=RecursiveReverseList(start->next);//Stores the location of the last node which is the new head
+        start->next->next=start;//Make the next node point to the previous node
+        start->next=NULL;//Make the current node point to NULL
+        return newstart;//Return address of the head
+    }
+}
+
 
 
 int main()
@@ -167,68 +235,90 @@ int main()
         printf("\nMake a selection");
         printf("\nPress 1 to insert elements");
         printf("\nPress 2 to delete elements");
-        printf("\nPress 3 to print the current list");
+        printf("\nPress 3 to reverse the list");
+        printf("\nPress 4 to print the current list");
+        printf("\nPress 5 to print the current list in reverse order");
+        printf("\nPress 6 to reverse the list using recursion");
         printf("\nPress 9 to quit\n");
         getchar();
         scanf(" %c",&choice);
         switch(choice)
         {
             case '1':
-            printf("Enter the number and position to be inserted\n");
+                printf("Enter the number and position to be inserted\n");
 
-            if(scanf(" %d",&i)==1&&scanf(" %d",&n)==1)//Check if scanf was successful
-            {
-                if(n>NoOfElements && NoOfElements!=0)//Condition to check if the nth location is greater than the list size
+                if(scanf(" %d",&i)==1&&scanf(" %d",&n)==1)//Check if scanf was successful
                 {
-                    printf("\nLocation exceeds list size");
-                    printf("\nSetting position to last location");
-                    n=NoOfElements;
+                    if(n>NoOfElements && NoOfElements!=0)//Condition to check if the nth location is greater than the list size
+                    {
+                        printf("\nLocation exceeds list size");
+                        printf("\nSetting position to last location");
+                        n=NoOfElements;
+                    }
+                    else if(NoOfElements==0)
+                    {
+                        printf("\nList is empty \n Inserted element in the beginning");
+                        HEAD=InsertElementInTheBeginning(HEAD,i);
+                        PrintElements(HEAD);
+                        break;
+                    }
+                    printf("\n The value %d will be inserted at %d position",i, n);
+                    HEAD=InsertElementAtN(HEAD, i, n);
+                    PrintElements(HEAD);
                 }
-                else if(NoOfElements==0)
-                {
-                    printf("\nList is empty");
-                    flag=0;
-                    break;
-                }
-                printf("\n The value %d will be inserted at %d position",i, n);
-                HEAD=InsertElementAtN(HEAD, i, n);
-                PrintElements(HEAD);
-            }
-            break;
+                break;
 
             case '2':
-            printf("Enter the position to be deleted\n");
-            if(scanf("%d",&n)==1)
-            {
-                if(n>NoOfElements && NoOfElements!=0)//Condition to check if the nth location is greater than the list size
+                printf("Enter the position to be deleted\n");
+                if(scanf("%d",&n)==1)
                 {
-                    printf("\nLocation exceeds list size");
-                    printf("\nSetting position to last location");
-                    n=NoOfElements;
+                    if(n>NoOfElements && NoOfElements!=0)//Condition to check if the nth location is greater than the list size
+                    {
+                        printf("\nLocation exceeds list size");
+                        printf("\nSetting position to last location");
+                        n=NoOfElements;
+                    }
+                    else if(NoOfElements==0)
+                    {
+                        printf("\nList is empty");
+                        flag=0;
+                        break;
+                    }
+                    HEAD=DeleteElementAtN(HEAD, n);
+                    printf("\n The value at %d position is now deleted",n);
+                    PrintElements(HEAD);
                 }
-                else if(NoOfElements==0)
-                {
-                    printf("\nList is empty");
-                    flag=0;
-                    break;
-                }
-                HEAD=DeleteElementAtN(HEAD, n);
-                printf("\n The value at %d position is now deleted",n);
-                PrintElements(HEAD);
-            }
-            break;
+                break;
 
-            case '3':
-            PrintElements(HEAD);
-            break;
+            case '4':
+                PrintElements(HEAD);
+                break;
 
             case '9':
-            flag=0;
-            break;
+                flag=0;
+                break;
+
+            case '3':
+                HEAD=IterativeReverseList(HEAD);
+                printf("\n The list is now reversed");
+                PrintElements(HEAD);
+                break;
+
+            case '5':
+                printf("\n Printing elements in reverse order\n");
+                PrintReverse(HEAD);
+                break;
+
+            case '6':
+                printf("\n Reversed list using recursion\n");
+                HEAD=RecursiveReverseList(HEAD);
+                PrintElements(HEAD);
+                break;
+
 
             default:
-            printf("Incorrect choice");
-            break;
+                printf("Incorrect choice");
+                break;
         }
     }
 
