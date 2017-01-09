@@ -1,7 +1,7 @@
 /****************************************************************
 *Name: Subhradeep Dutta
-*Date: 12/30/2016
-*This program implements a linked list by adding elements
+*Date: 1/6/2016
+*This program implements a doubly linked list by adding elements
 *and deleting elements from the linked list
 *****************************************************************/
 
@@ -10,25 +10,22 @@
 #include <stdlib.h>
 #include <malloc.h>
 
+
 int NoOfElements;
 
 struct node
 {
     int data;//Refers to the data part of the linked list
     struct node* next;//Refers to the pointer which points to the next element
+    struct node* prev;//Refers to the pointer which points to the previous element
 };
 
-
-/**Function Prototypes**/
+/**Function Protypes**/
 void PrintElements(struct node *start);
-struct node* InsertElementInTheBeginning(struct node *start, int x);
-struct node* InsertElementAtN(struct node *start,int x, int n);
-struct node* DeleteElementAtN(struct node *start, int n);
-struct node* IterativeReverseList(struct node *start);
-void PrintReverse(struct node *start);
-struct node* RecursiveReverseList(struct node *start);
-
-
+void InsertElementInTheBeginning(struct node **start, struct node **end, int x);
+void InsertElementAtN(struct node **start, int x, int n);
+void DeleteElementAtN(struct node **start, struct node **end, int n);
+void PrintReverse(struct node *end);
 
 /*************************************************************************************
 Description   : This function is used to print the elements in the linked list
@@ -50,8 +47,8 @@ void PrintElements(struct node *start)
         printf("\n The list is ");
         while(start!=NULL)
         {
-            printf("%d ",start->data);
-            start=start->next;//Iterate to the next element
+            printf("%d ",(start)->data);
+            start=(start)->next;//Iterate to the next element
         }
     }
 }
@@ -59,168 +56,154 @@ void PrintElements(struct node *start)
 /*************************************************************************************
 Description   : This function is used to insert elements in the beginning of the
                 linked list
-Input         : Element to be inserted
-Output        : Pointer to the new beginning of the linked list
+Input         : Element to be inserted and address of the pointer to start and end
+                location of the linked list
+Output        : N/A
 *************************************************************************************/
 
-struct node* InsertElementInTheBeginning(struct node *start, int x)
+void InsertElementInTheBeginning(struct node **start, struct node **end, int x)
 {
     struct node *new_node=(struct node*)malloc(sizeof(struct node));
     if(new_node==NULL)//Check if malloc was successful
     {
         printf("Memory allocation failed");
-        return start;//Return the original pointer to the beginning
+        return;
     }
     new_node->data=x;
-    new_node->next=start;//Copy the location to the next element from the start pointer
-    start=new_node;//Make start point to the newly inserted element
+    if(*start==NULL)
+    {
+        *end=new_node;//Make the tail point to the only element in the list, special case where head and tail point to the same element
+    }
+    else
+    {
+        (*start)->prev=new_node;//Make the first node of the list point to the newly created node
+    }
+    new_node->prev=NULL;//The newly created node is 1st in the list so prev refers to NULL
+    new_node->next=*start;//Copy the location of already existing element from start pointer
+    *start=new_node;//Make start point to the newly created node
     NoOfElements++;
-    return new_node;
 
 }
 
 /*************************************************************************************
 Description   : This function is used to insert elements in the nth position of the
                 linked list
-Input         : Element and position to be inserted, pointer to beginning of linked
-                list
-Output        : Pointer to the beginning of the linked list
+Input         : Element and position to be inserted, address to the pointer to
+                beginning of linked list
+Output        : N/A
 *************************************************************************************/
 
-struct node* InsertElementAtN(struct node *start,int x, int n)//Here the starting position for the linked list is assumed to be 1
+void InsertElementAtN(struct node **start, int x, int n)//Here the starting position for the linked list is assumed to be 1
 {
     int i;
     struct node* new_node=(struct node*)malloc(sizeof(struct node));
     if(new_node==NULL)//Check if malloc was successful
     {
         printf("Memory allocation failed");
-        return start;
+        return;
     }
     new_node->data=x;
     new_node->next=NULL;
-    if(n==1)
+    new_node->prev=NULL;
+    if(n==1)//Special case when insertion at the beginning of the linked list
     {
-        new_node->next=start;
-        start=new_node;
+        new_node->next=*start;//Next pointer of the newly created node now points to the first element in the list
+        (*start)->prev=new_node;//Prev pointer of the first node points to the newly created node
+        *start=new_node;//Start now points to the newly created node
         NoOfElements++;
-        return start;
+        return;
     }
     struct node *ptr;
-    ptr=start;
+    ptr=*start;
     for(i=0;i<n-2;i++)//n-2 to iterate to the (n-1)th location
     {
         if (ptr->next == NULL)
-            return start;
+            return;
         ptr=ptr->next;
     }
     new_node->next=ptr->next;//Copy the location of the next element from ptr
-    ptr->next=new_node;//Make ptr point to the newly created element
+    ptr->next->prev=new_node;//Make the next node point back to the newly created node
+    ptr->next=new_node;//Make ptr point to the newly created node
+    new_node->prev=ptr;
     NoOfElements++;
-    return start;
 }
 
 
 /*************************************************************************************
 Description   : This function is used to delete elements in the nth position of the
                 linked list
-Input         : Position to be deleted, pointer to beginning of linked
-                list
-Output        : Pointer to the beginning of the linked list
+Input         : Position to be deleted, address of pointer to beginning of linked
+                list and end of linked list
+Output        : N/A
 *************************************************************************************/
-struct node* DeleteElementAtN(struct node *start, int n)
+void DeleteElementAtN(struct node **start, struct node **end, int n)
 {
     int i;
     struct node* temp=NULL;
     struct node* ptr=NULL;
-    ptr=start;
-    if(n==1)//Special case for the starting node
+    ptr=*start;
+    if(n==1 && NoOfElements>1)//Special case for the starting node
     {
-        start=ptr->next;//The start location pointer is now pointing to 2nd node
+        *start=ptr->next;//The start location pointer is now pointing to 2nd node
         free(ptr);
+        (*start)->prev=NULL;
         NoOfElements--;//Reduce the number of elements by 1
-        return start;
+        return;
+    }
+    if(n==NoOfElements && NoOfElements>1)//Special case for the last node
+    {
+        ptr=*end;
+        *end=(*end)->prev;//Shift the end to the second last node
+        (*end)->next=ptr->next;//Copy the next pointer from the last node onto the second last node
+        free(ptr);
+        NoOfElements--;
+        return;
+    }
+    if(n==1 && NoOfElements==1)//Special case when only one node is left
+    {
+        free(ptr);
+        *start=NULL;
+        *end=NULL;
+        NoOfElements--;
+        return;
     }
     for(i=0;i<n-2;i++)//n-2 to iterate to the (n-1)th location
     {
         if (ptr->next == NULL)
-            return start;
+            return;
         ptr=ptr->next;
     }
     temp=ptr->next;//Nth node which is supposed to be deleted
     ptr->next=temp->next;//Reassign the link part of Nth node to the (N-1)th node to point to the (N+1)th node
+    temp->next->prev=ptr;
     free(temp);
     NoOfElements--;//Update the number of elements
-    return start;
+    return;
 
 }
 
 
-/*************************************************************************************
-Description   : This function is used to reverse the elements of the linked list
-                by iterative technique
-Input         : Pointer to the beginning of the linked list
-Output        : Pointer to the beginning of the linked list
-*************************************************************************************/
-
-struct node* IterativeReverseList(struct node *start)
-{
-    struct node * current, *prev, *post;
-    current=start;
-    prev=NULL;
-    while(current!=NULL)
-    {
-        post=current->next;//Store the location of next node
-        current->next=prev;//Repoint the current node's next to previous node
-        prev=current;//Shift the previous pointer to point to the current node
-        current=post;//Shift the current pointer to point to the next node
-    }
-    start=prev;
-    return start;
-}
 
 
 /*************************************************************************************
 Description   : This function is used to print the elements of the linked list in
                 reverse order using recursion
-Input         : Pointer to the beginning of the linked list
-Output        : Pointer to the beginning of the linked list
+Input         : Pointer to the end of the linked list
+Output        : N/A
 *************************************************************************************/
 
-void PrintReverse(struct node *start)
+void PrintReverse(struct node *end)
 {
-    if(start==NULL)
+    if(end==NULL)
     {
         printf("\n");
         return;
     }
-    PrintReverse(start->next);
-    printf("%d ",start->data);
+
+    printf("%d ",end->data);
+    PrintReverse(end->prev);
 
 }
-
-
-/*************************************************************************************
-Description   : This function is used to reverse the elements of the linked list
-                by recursive technique
-Input         : Pointer to the beginning of the linked list
-Output        : Pointer to the beginning of the linked list
-*************************************************************************************/
-
-struct node* RecursiveReverseList(struct node *start)
-{
-    if(start->next==NULL)//Limiting condition when the last node is reached
-    {
-        return start;//Return the address of the last node
-    }
-    else
-    {
-        struct node *newstart=RecursiveReverseList(start->next);//Stores the location of the last node which is the new head
-        start->next->next=start;//Make the next node point to the previous node
-        start->next=NULL;//Make the current node point to NULL
-        return newstart;//Return address of the head
-    }
-}
-
 
 
 int main()
@@ -229,14 +212,15 @@ int main()
     char choice;
     int flag=1;
     int x=0, n=0, i=0;
-    struct node *HEAD;//Pointer that points to beginning of the list
+    struct node *HEAD, *TAIL;//Pointer that points to beginning of the list and end of the list
     struct node *ptr;//Pointer to iterate through the list
     HEAD=NULL; //Assigning HEAD to null when there are no elements in the list
+    TAIL=NULL; //Assigning TAIL to null when there are no elements in the list
 
     printf("Enter numbers to be inserted into the list\n Press q to quit\n");
     while(scanf("%d",&x)==1)//Check if scanf was succesful
     {
-        HEAD=InsertElementInTheBeginning(HEAD,x);
+        InsertElementInTheBeginning(&HEAD, &TAIL, x);
         PrintElements(HEAD);
         printf("\n\rEnter numbers to be inserted into the list\n Press q to quit\n");
     }
@@ -246,10 +230,8 @@ int main()
         printf("\nMake a selection");
         printf("\nPress 1 to insert elements");
         printf("\nPress 2 to delete elements");
-        printf("\nPress 3 to reverse the list");
-        printf("\nPress 4 to print the current list");
-        printf("\nPress 5 to print the current list in reverse order");
-        printf("\nPress 6 to reverse the list using recursion");
+        printf("\nPress 3 to print the current list");
+        printf("\nPress 4 to print the current list in reverse order");
         printf("\nPress 9 to quit\n");
         getchar();
         scanf(" %c",&choice);
@@ -269,16 +251,16 @@ int main()
                     else if(NoOfElements==0)
                     {
                         printf("\nList is empty \n Inserted element in the beginning");
-                        HEAD=InsertElementInTheBeginning(HEAD,i);
+                        InsertElementInTheBeginning(&HEAD, &TAIL, i);
                         PrintElements(HEAD);
                         break;
                     }
                     printf("\n The value %d will be inserted at %d position",i, n);
-                    HEAD=InsertElementAtN(HEAD, i, n);
+                    InsertElementAtN(&HEAD, i, n);
                     PrintElements(HEAD);
                 }
                 break;
-
+//
             case '2':
                 printf("Enter the position to be deleted\n");
                 if(scanf("%d",&n)==1)
@@ -295,36 +277,26 @@ int main()
                         flag=0;
                         break;
                     }
-                    HEAD=DeleteElementAtN(HEAD, n);
+                    DeleteElementAtN(&HEAD, &TAIL, n);
                     printf("\n The value at %d position is now deleted",n);
                     PrintElements(HEAD);
                 }
                 break;
-
-            case '4':
+//
+            case '3':
                 PrintElements(HEAD);
                 break;
-
+//
             case '9':
                 flag=0;
                 break;
 
-            case '3':
-                HEAD=IterativeReverseList(HEAD);
-                printf("\n The list is now reversed");
-                PrintElements(HEAD);
-                break;
 
-            case '5':
+            case '4':
                 printf("\n Printing elements in reverse order\n");
-                PrintReverse(HEAD);
+                PrintReverse(TAIL);
                 break;
 
-            case '6':
-                printf("\n Reversed list using recursion\n");
-                HEAD=RecursiveReverseList(HEAD);
-                PrintElements(HEAD);
-                break;
 
 
             default:
