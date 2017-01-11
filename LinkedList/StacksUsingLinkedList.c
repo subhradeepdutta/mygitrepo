@@ -9,12 +9,18 @@
 
 struct node
 {
- int data;
+ char data;
  struct node *next;
 };
 
 struct node *top=NULL;
 int NoofElements;
+
+void Push(char n);
+struct node *Pop();
+void PrintElements();
+void StringReverse(char string[]);
+
 
 /*************************************************************************************
 Description   : This function is used to push elements into the stack
@@ -22,7 +28,7 @@ Input         : Element to be inserted
 Output        : N/A
 *************************************************************************************/
 
-void Push(int n)
+void Push(char n)
 {
     struct node *new_node=(struct node *)malloc(sizeof(struct node));
     if(new_node==NULL)//Check if malloc was successful
@@ -52,7 +58,6 @@ struct node *Pop()
     {
         return top;//Return if stack is empty
     }
-    printf("Popping the top element from the stack");
     top=top->next;//Make top point to the next element in the stack
     free(ptr);
     NoofElements--;
@@ -77,15 +82,31 @@ void PrintElements()
     }
     while(ptr!=NULL)
     {
-        printf("\n %d ", ptr->data);
+        printf("\n %c ", ptr->data);
         ptr=ptr->next;
     }
 
 }
 
+void StringReverse(char string[])
+{
+    int i;
+    for(i=0;i<100 && string[i]!='\0';i++)
+    {
+        Push(string[i]);
+    }
+    for(i=0;i<100 && string[i]!='\0';i++)
+    {
+        string[i]=top->data;
+        Pop();
+    }
+}
+
 int main()
 {
-    int choice, n, flag=1;
+    int choice, flag=1;
+    char n;
+    char string[100];
     while(flag==1)
     {
         printf("\nMake a selection\n");
@@ -93,24 +114,23 @@ int main()
         printf("Enter 2 to pop an element from the stack\n");
         printf("Enter 3 to print the stack elements\n");
         printf("Enter 4 to display the top element of the stack\n");
-        printf("Enter 5 to quit\n");
+        printf("Enter 5 to reverse a string using stack\n");
+        printf("Enter 9 to quit\n");
         scanf("%d",&choice);
         switch(choice)
         {
             case 1:
-                printf("Enter an element to push into the stack -->");
-                scanf("%d",&n);
+                printf("Enter an element to push into the stack -->  ");
+                getchar();
+                scanf(" %c",&n);
                 Push(n);
-                PrintElements();
                 break;
 
             case 2:
                 top=Pop();
-                PrintElements();
                 break;
 
             case 3:
-                printf(" Printing the elements in the stack\n");
                 PrintElements();
                 break;
 
@@ -118,10 +138,24 @@ int main()
                 if(top==NULL)
                     printf("Stack is empty");
                 else
-                    printf("\nThe top element on the stack is --> %d",top->data);
+                    printf("\nThe top element on the stack is --> %c",top->data);
                 break;
 
             case 5:
+                fflush(stdin);
+                printf("Enter a string\n");
+                fgets (string,100,stdin);
+                printf("\n Original string is --> %s",string);
+                for(int i=0;i<100;i++)
+                {
+                    if(string[i]=='\0')
+                        string[i-1]='\0';
+                }
+                StringReverse(string);
+                printf("Modified string is --> %s",string);
+                break;
+
+            case 9:
                 flag=0;
                 break;
 
