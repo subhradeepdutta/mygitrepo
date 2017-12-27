@@ -1,3 +1,14 @@
+/**********************************************************
+Print the Max length of the subsequence in a separate line.
+
+Input
+1
+16
+0 8 4 12 2 10 6 14 1 9 5 13 3 11 7 15
+Output
+6
+**********************************************************/
+
 #include <stdio.h>
 
 void main()

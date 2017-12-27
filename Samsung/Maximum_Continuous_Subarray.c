@@ -1,3 +1,20 @@
+/*Kadane's Algorithm*/
+
+/**********************************************************
+Print the maximum sum of the contiguous sub-array 
+in a separate line for each test case.
+
+Input
+2
+3
+1 2 3
+4
+-1 -2 -3 -4
+Output
+6
+-1
+**********************************************************/
+
 #include <stdio.h>
 
 void main()
