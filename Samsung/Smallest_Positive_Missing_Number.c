@@ -18,11 +18,11 @@ int main()
     int num_of_test_cases=0;
     int num_of_elements=0;
     int elements;
-    //printf("Enter number of test cases");
+    printf("Enter number of test cases");
     scanf("%d",&num_of_test_cases);
     while(num_of_test_cases!=0)
     {
-        //printf("Enter number of elements");
+        printf("Enter number of elements");
         scanf("%d",&num_of_elements);
         int list_of_numbers[num_of_elements];
         for(int i = 0; i<num_of_elements; i++)
