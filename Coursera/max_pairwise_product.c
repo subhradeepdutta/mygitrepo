@@ -17,16 +17,16 @@ int main()
 			largest_num = i;
 		}
 	}
-	temp = list_of_numbers[n];
-	list_of_numbers[n] = list_of_numbers[largest_num];
+	temp = list_of_numbers[n-1];
+	list_of_numbers[n-1] = list_of_numbers[largest_num];
 	list_of_numbers[largest_num] =  temp;
-	largest_num = n;
+	largest_num = n-1;
 
 	second_largest_num = 0;
 
 	for(int i =0; i<n; i++)
 	{
-		if((*(list_of_numbers+i) > *(list_of_numbers + second_largest_num)) && (i!= largest_num))
+		if((list_of_numbers[i] > list_of_numbers[second_largest_num]) && (i!= largest_num))
 		{
 			second_largest_num = i;
 		}
