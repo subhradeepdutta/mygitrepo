@@ -9,7 +9,7 @@ int main()
 	{
 		scanf("%d",(list_of_numbers + i));
 	}
-	largest_num = second_largest_num = *(list_of_numbers);
+	largest_num = *(list_of_numbers);
 	for(int i =1; i<n; i++)
 	{
 		if(*(list_of_numbers+i) > largest_num)
@@ -17,9 +17,10 @@ int main()
 			largest_num = *(list_of_numbers +i);
 		}
 	}
-	for(int i =1; i<n; i++)
+	second_largest_num = 0;
+	for(int i =0; i<n; i++)
 	{
-		if((*(list_of_numbers+i) > second_largest_num) && (*(list_of_numbers + i)!= largest_num))
+		if((*(list_of_numbers+i) > second_largest_num) && (*(list_of_numbers + i)!= largest_num) && (*(list_of_numbers+i) < largest_num))
 		{
 			second_largest_num = *(list_of_numbers+i);
 		}
